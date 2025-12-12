@@ -1,0 +1,42 @@
+services:
+  database:
+    build: ./database
+    container_name: database
+    restart: always
+    ports:
+      - "3306:3306"
+    networks:
+      - spring_net
+    environment:
+      MYSQL_ROOT_PASSWORD: 123
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD} || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  
+  backend:
+    build: ./backend
+    container_name: backend
+    environment:
+      MYSQL_HOST: database
+    ports:
+      - "8080:8080"
+    restart: always
+    networks:
+      - spring_net
+      - frontend_net
+    depends_on:
+      database:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    networks:
+      - frontend_net
+
+networks:
+  spring_net:
+  frontend_net:

@@ -1,55 +1,59 @@
 import { useEffect, useState } from "react";
 import "./App.css";
-import UserRow from "./components/UserRow";
-import NewUser from "./components/NewUser";
+import CustomerRow from "./components/CustomerRow";
+import NewCustomer from "./components/NewCustomer";
 
 function App() {
-  const [users, setUsers] = useState([]);
-  const [newUsers, setNewUsers] = useState([]);
-  const [newUserMaxID, setnewUserMaxID] = useState(0);
+  const [customers, setCustomers] = useState([]);
+  const [newCustomers, setNewCustomers] = useState([]);
+  const [newCustomerMaxID, setnewCustomerMaxID] = useState(0);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8080/users")
+    fetch("http://127.0.0.1:8080/customers")
       .then((response) => response.json())
       .then((data) => {
         for (const element of data) {
           element["viewMode"] = true;
         }
-        setUsers(data);
+        setCustomers(data);
       });
   }, []);
 
-  function deleteUser(value) {
-    fetch("http://127.0.0.1:8080/users/delete?id=" + value.id, {
+  function deleteCustomer(value) {
+    fetch(`http://127.0.0.1:8080/customers/${value.id}`, {
       method: "DELETE",
+      headers: { "Content-Type": "application/json" },
     }).then(() => {
-      setUsers((oldValues) => {
-        return oldValues.filter((user) => user !== value);
+      setCustomers((oldValues) => {
+        return oldValues.filter((customer) => customer !== value);
       });
     });
   }
 
   function editModeChange(id) {
     console.log("Changing edit mode");
-    for (const element of users) {
+    for (const element of customers) {
       if (element.id == id) {
         element["viewMode"] = !element["viewMode"];
       }
     }
-    setUsers((prevUsers) => [...prevUsers]);
+    setCustomers((prevCustomers) => [...prevCustomers]);
   }
 
-  function updateUser(id, name, email, status) {
-    let userForUpdate = { name: name, email: email, status: status };
-    fetch("http://127.0.0.1:8080/users/update?id=" + id, {
-      method: "PUT",
-      body: JSON.stringify(userForUpdate),
+  function updateCustomer(id, name, email, phone, address) {
+    console.log("Updating customer:", { id, name, email, phone, address });
+    let customerForUpdate = { name: name, email: email, phone: phone, address: address };
+    fetch(`http://127.0.0.1:8080/customers/${id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(customerForUpdate),
     }).then(() => {
-      for (const element of users) {
+      for (const element of customers) {
         if (element.id == id) {
           element.name = name;
           element.email = email;
-          element.status = status;
+          element.phone = phone;
+          element.address = address;
           editModeChange(id);
           break;
         }
@@ -57,49 +61,49 @@ function App() {
     });
   }
 
-  function addNewUserInput() {
-    setNewUsers((newUsers) => [...newUsers, newUserMaxID]);
-    setnewUserMaxID(() => newUserMaxID + 1);
+  function addNewCustomerInput() {
+    setNewCustomers((newCustomers) => [...newCustomers, newCustomerMaxID]);
+    setnewCustomerMaxID(() => newCustomerMaxID + 1);
   }
 
-  function deleteNewUser(id) {
-    setNewUsers((oldValues) => {
-      return oldValues.filter((user) => user !== id);
+  function deleteNewCustomer(id) {
+    setNewCustomers((oldValues) => {
+      return oldValues.filter((customer) => customer !== id);
     });
   }
 
-  function updateNewUser(newUser) {
-    setUsers([...users, newUser]);
+  function updateNewCustomer(newCustomer) {
+    setCustomers([...customers, newCustomer]);
   }
 
   return (
     <div className="App">
       <header className="App-header">
-        <p>User Dashboard</p>
+        <p>Simple CRM</p>
       </header>
       <div>
-        {users.map((user) => (
-          <div key={user.id}>
-            <UserRow
-              user={user}
-              deleteUser={deleteUser}
+        {customers.map((customer) => (
+          <div key={customer.id}>
+            <CustomerRow
+              customer={customer}
+              deleteCustomer={deleteCustomer}
               editModeChange={editModeChange}
-              updateUser={updateUser}
+              updateCustomer={updateCustomer}
             />
           </div>
         ))}
       </div>
-      {newUsers.map((newUserID) => (
-        <div key={newUserID}>
-          <NewUser
-            id={newUserID}
-            deleteUser={deleteNewUser}
-            updateNewUser={updateNewUser}
-          ></NewUser>
+      {newCustomers.map((newCustomerID) => (
+        <div key={newCustomerID}>
+          <NewCustomer
+            id={newCustomerID}
+            deleteCustomer={deleteNewCustomer}
+            updateNewCustomer={updateNewCustomer}
+          ></NewCustomer>
         </div>
       ))}
       <div>
-        <button onClick={() => addNewUserInput()}>New User</button>
+        <button onClick={() => addNewCustomerInput()}>New Customer</button>
       </div>
     </div>
   );

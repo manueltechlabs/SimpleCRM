@@ -2,31 +2,34 @@ import React from "react";
 import { useState } from "react";
 import "../App.css";
 
-export default function NewUser(probs) {
+export default function NewCustomer(props) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
 
   const onSubmit = (e) => {
     e.preventDefault();
-    let newUser = { name: name, email: email, status: status };
+    let newCustomer = { name: name, email: email, phone: phone, address: address};
 
-    fetch("http://127.0.0.1:8080/users/create", {
+    fetch("http://127.0.0.1:8080/customers", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newUser),
+      body: JSON.stringify(newCustomer),
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
-        probs.deleteUser(probs.id);
-        probs.updateNewUser({
-          id: data,
+        console.log(data);        
+        props.updateNewCustomer({
+          id: data.id,
           name: name,
           email: email,
-          status: status,
-          viewMode: true,
-        });   
+          phone: phone,
+          address: address,
+          createdAt: data.createdAt,
+          viewMode: true,          
+        });
+        props.deleteCustomer(props.id);
       })
       .catch(() => {
         console.log("Somthing failed");
@@ -35,7 +38,7 @@ export default function NewUser(probs) {
 
   return (
     <form onSubmit={onSubmit}>
-      <div className="NewUser">
+      <div className="NewCustomer">
         <div className="InputBox">
           <label>Name:</label>
           <input
@@ -55,16 +58,25 @@ export default function NewUser(probs) {
           />
         </div>
         <div className="InputBox">
-          <label>Status:</label>
+          <label>Phone:</label>
           <input
             type="text"
-            name="status"
-            value={status}
-            onChange={(event) => setStatus(event.target.value)}
+            name="phone"
+            value={phone}
+            onChange={(event) => setPhone(event.target.value)}
+          />
+        </div>
+        <div className="InputBox">
+          <label>Address:</label>
+          <input
+            type="text"
+            name="address"
+            value={address}
+            onChange={(event) => setAddress(event.target.value)}
           />
         </div>
         <button type="submit">Submit</button>
-        <button onClick={() => probs.deleteUser(probs.id)}>Delete</button>
+        <button onClick={() => props.deleteCustomer(props.id)}>Delete</button>
       </div>
     </form>
   );

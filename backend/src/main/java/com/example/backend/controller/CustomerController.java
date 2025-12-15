@@ -8,6 +8,7 @@ import com.example.backend.service.CustomerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,14 +47,12 @@ public class CustomerController {
 
     @PostMapping("/customers")
     public ResponseEntity<CustomerDTO> save(@RequestBody CustomerDTO customerDTO) {
-        log.info("Received CustomerDTO: {}", customerDTO);
         Customer customer = customerMapper.toEntity(customerDTO);
-        log.info("Mapped Customer entity: {}", customer);
         Customer savedCustomer = customerService.save(customer);
         return ResponseEntity.ok(customerMapper.toDto(savedCustomer));        
     }
 
-    @PatchMapping("/customers/{id}")
+    @PostMapping(path = "/customers/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CustomerDTO> updateCustomer(@PathVariable Long id, @RequestBody CustomerDTO dto) {
         Optional<Customer> optionalCustomer = customerService.getCustomerById(id);
         if (optionalCustomer.isPresent()) {
@@ -70,6 +69,7 @@ public class CustomerController {
 
     @DeleteMapping("/customers/{id}")
     public ResponseEntity<Integer> deleteCustomer(@PathVariable Long id) {
+        log.info("DELETE /customers - Request received for id: {}", id);
         Optional<Customer> optionalCustomer = customerService.deleteCustomer(id);
         return optionalCustomer.isPresent()
         ? ResponseEntity.ok(optionalCustomer.get().getId())

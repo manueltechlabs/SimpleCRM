@@ -26,4 +26,9 @@ public class Customer {
     private String phone;
     private String address;
     private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
 }

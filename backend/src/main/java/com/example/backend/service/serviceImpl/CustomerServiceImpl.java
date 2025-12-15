@@ -25,7 +25,7 @@ public class CustomerServiceImpl implements CustomerService {
         return customerRepository.findAll();
     }
 
-    public Customer save(Customer customer) {        
+    public Customer save(Customer customer) {
         return customerRepository.save(customer);
     }
 

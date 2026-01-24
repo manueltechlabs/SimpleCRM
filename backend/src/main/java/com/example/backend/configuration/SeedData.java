@@ -2,6 +2,7 @@ package com.example.backend.configuration;
 
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +11,11 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import com.example.backend.model.Customer;
+import com.example.backend.model.InteractionLog;
+import com.example.backend.model.InteractionType;
+import com.example.backend.model.User;
 import com.example.backend.service.CustomerService;
+import com.example.backend.service.InteractionLogService;
 
 
 @Component
@@ -20,6 +25,9 @@ public class SeedData implements CommandLineRunner {
 
     @Autowired
     private CustomerService customerService;
+
+    @Autowired
+    private InteractionLogService interactionLogService;
 
     @Override
     public void run(String... args) throws Exception {
@@ -66,6 +74,23 @@ public class SeedData implements CommandLineRunner {
             "+1-555-0127",
             "654 Maple Dr, Phoenix, AZ",
             LocalDateTime.now()
-        ));   
+        ));
+        // After saving all customers
+        List<Customer> customers = customerService.findAll(); // Implement this method
+
+        // Assign logs to first 4 customers
+        for (int i = 0; i < 4; i++) {
+            Customer c = customers.get(i);
+            for (int j = 0; j < (i + 1); j++) { // 1 to 4 logs per customer
+                InteractionLog log = new InteractionLog();
+                log.setInteractionType(InteractionType.CALL); // Ensure this enum exists
+                log.setSubject("Follow-up " + (j + 1));
+                log.setNotes("Discussed account details.");
+                log.setCustomer(c);
+                log.setUser(User.SALES);
+                interactionLogService.save(log); // Use your service
+            }
+        }
+        // Leave last customer (e.g., Charlie Wilson) without logs
     }
 }

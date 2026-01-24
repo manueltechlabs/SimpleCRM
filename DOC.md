@@ -75,7 +75,19 @@ A minimal CRM with two core tables: Customer and InteractionLog. The system enab
 - Master-detail layout ensures one customer is viewed at a time.
 - Full navigation via search or create new.
 
+We are preventing remove by not including CascadeType.REMOVE in the cascade configuration.
 
+Currently, cascade is:
+
+cascade = {CascadeType.PERSIST, CascadeType.MERGE}
+
+This means:
+
+✅ New interaction logs are saved when the customer is saved (PERSIST)
+✅ Updated logs are synchronized (MERGE)
+❌ Deleting the customer will NOT automatically delete logs
+❌ Deleting a log from the set will NOT persist unless explicitly handled
+So, no cascade delete occurs, protecting your data — exactly what you want for a CRM.
 
 
 

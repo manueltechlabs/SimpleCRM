@@ -27,6 +27,11 @@ public class Customer {
     private String address;
     private LocalDateTime createdAt;
 
+    // Interaction logs are inmutable. PERSIST: Ensures new logs are saved when the customer is saved.
+    // FetchType.LAZY on the interactionLog collection to avoid loading all logs unless explicitly accessed.
+    // @OneToMany(mappedBy = "customer", cascade = {CascadeType.PERSIST}, fetch = FetchType.LAZY)
+    // private Set<InteractionLog> interactionLog = new HashSet<>();
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

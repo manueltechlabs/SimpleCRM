@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,17 +33,22 @@ public class CustomerController {
     }
 
     @GetMapping("/customers/{id}")
-    public ResponseEntity<Customer> getCustomerById(@PathVariable Long id) {
+    public ResponseEntity<CustomerDTO> getCustomerById(@PathVariable Long id) {
         Optional<Customer> optionalCustomer = customerService.getCustomerById(id);
         return optionalCustomer.isPresent()
-            ? ResponseEntity.ok(optionalCustomer.get())
+            ? ResponseEntity.ok(customerMapper.toDto(optionalCustomer.get()))
             : ResponseEntity.notFound().build();
     }
 
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/customers")
-    public ResponseEntity<List<Customer>> getUsers() {
-        return new ResponseEntity<>(customerService.findAll(), HttpStatus.OK);
+    public ResponseEntity<List<CustomerDTO>> getUsers() {
+        List<Customer> customers = customerService.findAll();
+        List<CustomerDTO> customerDTOs = new ArrayList<>();
+        for (Customer customer : customers) {
+            customerDTOs.add(customerMapper.toDto(customer));
+        }
+        return new ResponseEntity<>(customerDTOs, HttpStatus.OK);
     }
 
     @PostMapping("/customers")
@@ -53,7 +59,8 @@ public class CustomerController {
     }
 
     @PostMapping(path = "/customers/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CustomerDTO> updateCustomer(@PathVariable Long id, @RequestBody CustomerDTO dto) {
+    public ResponseEntity<CustomerDTO>
+        updateCustomer(@PathVariable Long id, @RequestBody CustomerDTO dto) {
         Optional<Customer> optionalCustomer = customerService.getCustomerById(id);
         if (optionalCustomer.isPresent()) {
             Customer customer = optionalCustomer.get();

@@ -2,6 +2,8 @@ package com.example.backend.model;
 
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -29,8 +31,8 @@ public class Customer {
 
     // Interaction logs are inmutable. PERSIST: Ensures new logs are saved when the customer is saved.
     // FetchType.LAZY on the interactionLog collection to avoid loading all logs unless explicitly accessed.
-    // @OneToMany(mappedBy = "customer", cascade = {CascadeType.PERSIST}, fetch = FetchType.LAZY)
-    // private Set<InteractionLog> interactionLog = new HashSet<>();
+    @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
+    private Set<InteractionLog> interactionLog = new HashSet<>();
 
     @PrePersist
     protected void onCreate() {

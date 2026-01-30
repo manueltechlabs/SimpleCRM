@@ -5,7 +5,9 @@ import com.example.backend.repository.CustomerRepository;
 import com.example.backend.service.CustomerService;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -59,5 +61,12 @@ public class CustomerServiceImpl implements CustomerService {
             customerRepository.deleteById(id);
         }
         return optionalCustomer;
+    }
+
+    @Override
+    public Optional<Customer> getLastInteractedCustomer() {
+        Pageable topOne = PageRequest.of(0, 1);
+        Page<Customer> page = customerRepository.findTopByLatestInteraction(topOne);
+        return page.getContent().isEmpty() ? Optional.empty(): Optional.of(page.getContent().get(0));
     }
 }

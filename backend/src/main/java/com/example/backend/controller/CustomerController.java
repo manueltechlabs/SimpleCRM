@@ -39,6 +39,13 @@ public class CustomerController {
             ? ResponseEntity.ok(customerMapper.toDto(optionalCustomer.get()))
             : ResponseEntity.notFound().build();
     }
+    @GetMapping("/customers/latest")
+    public ResponseEntity<CustomerDTO> getLastInteractedCustomer() {
+        Optional<Customer> optionalCustomer = customerService.getLastInteractedCustomer();
+        return optionalCustomer.isPresent()
+            ? ResponseEntity.ok(customerMapper.toDto(optionalCustomer.get()))
+            : ResponseEntity.notFound().build();
+    }
 
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/customers")

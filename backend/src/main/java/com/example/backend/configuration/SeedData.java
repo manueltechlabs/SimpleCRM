@@ -37,7 +37,8 @@ public class SeedData implements CommandLineRunner {
             "john.doe@email.com",
             "+1-555-0123",
             "123 Main St, New York, NY",
-            LocalDateTime.now()
+            LocalDateTime.now(),
+            null
         ));
 
         customerService.save(new Customer(
@@ -46,7 +47,8 @@ public class SeedData implements CommandLineRunner {
             "jane.smith@email.com",
             "+1-555-0124",
             "456 Oak Ave, Los Angeles, CA",
-            LocalDateTime.now()
+            LocalDateTime.now(),
+            null
         ));
 
         customerService.save(new Customer(
@@ -55,7 +57,8 @@ public class SeedData implements CommandLineRunner {
             "alice.johnson@email.com",
             "+1-555-0125",
             "789 Pine Rd, Chicago, IL",
-            LocalDateTime.now()
+            LocalDateTime.now(),
+            null
         ));
 
         customerService.save(new Customer(
@@ -64,7 +67,8 @@ public class SeedData implements CommandLineRunner {
             "bob.brown@email.com",
             "+1-555-0126",
             "321 Elm St, Houston, TX",
-            LocalDateTime.now()
+            LocalDateTime.now(),
+            null
         ));
 
         customerService.save(new Customer(
@@ -73,7 +77,8 @@ public class SeedData implements CommandLineRunner {
             "charlie.wilson@email.com",
             "+1-555-0127",
             "654 Maple Dr, Phoenix, AZ",
-            LocalDateTime.now()
+            LocalDateTime.now(),
+            null
         ));
         // After saving all customers
         List<Customer> customers = customerService.findAll(); // Implement this method

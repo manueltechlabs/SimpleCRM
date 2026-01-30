@@ -23,4 +23,6 @@ public interface CustomerService {
 
 
     public Optional<Customer> deleteCustomer(Long id);
+
+    public Optional<Customer> getLastInteractedCustomer();
 }

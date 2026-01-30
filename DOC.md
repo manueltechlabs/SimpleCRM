@@ -39,6 +39,7 @@ A minimal CRM with two core tables: Customer and InteractionLog. The system enab
 | :--- | :--- | :--- |
 | `GET` | `/customers` | List all customers |
 | `GET` | `/customers/{id}` | Get customer + related logs |
+| `GET` | `/customers/latest` | Get latest customer interaction |
 | `POST` | `/customers` | Create customer |
 | `PUT` | `/customers/{id}` | Update customer |
 | `DELETE` | `/customers/{id}` | Delete customer |

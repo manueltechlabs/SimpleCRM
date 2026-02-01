@@ -1,32 +1,18 @@
 // src/components/Detail.js
-import React, { useState, useMemo } from 'react';
-import {
-  Box,
-  Typography,
-  Button,
-  Modal,
-  TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-} from '@mui/material';
+import React, { useMemo, useState } from 'react';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
 import { DataGrid } from '@mui/x-data-grid';
+import CreateLogModal from './CreateLogModal';
+import ViewLogModal from './ViewLogModal';
 
 export default function Detail({ logs, customerId, createLog, refreshLogs, parseDate }) {
+  const [openCreate, setOpenCreate] = useState(false);
   const [selectedLog, setSelectedLog] = useState(null);
-  const [open, setOpen] = useState(false);
-  const [newLog, setNewLog] = useState({
-    interactionType: 'NOTE',
-    subject: '',
-    notes: '',
-  });
 
-  const handleCreateLog = async () => {
-    await createLog(customerId, newLog);
-    setOpen(false);
-    setNewLog({ interactionType: 'NOTE', subject: '', notes: '' });
-  };
+  const handleOpenCreate = () => setOpenCreate(true);
+  const handleCloseCreate = () => setOpenCreate(false);
 
   const columns = useMemo(() => [
     { field: 'interactionType', headerName: 'Type', width: 120 },
@@ -46,7 +32,7 @@ export default function Detail({ logs, customerId, createLog, refreshLogs, parse
     <Box sx={{ flex: 1 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Typography variant="h6">Interaction History</Typography>
-        <Button variant="contained" onClick={() => setOpen(true)}>Create Log</Button>
+        <Button variant="contained" onClick={handleOpenCreate}>Create Log</Button>
       </Box>
 
       <DataGrid
@@ -60,70 +46,18 @@ export default function Detail({ logs, customerId, createLog, refreshLogs, parse
         getRowId={(row) => row.id}
       />
 
-      {/* Create Log Modal */}
-      <Modal open={open} onClose={() => setOpen(false)}>
-        <Box sx={{
-          p: 4,
-          bgcolor: 'background.paper',
-          margin: '5% auto',
-          width: { xs: '90%', sm: 500 },
-        }}>
-          <Typography variant="h6" gutterBottom>Create Interaction</Typography>
-          <TextField
-            label="Subject"
-            fullWidth
-            value={newLog.subject}
-            onChange={(e) => setNewLog({ ...newLog, subject: e.target.value })}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            label="Notes"
-            multiline
-            rows={4}
-            fullWidth
-            value={newLog.notes}
-            onChange={(e) => setNewLog({ ...newLog, notes: e.target.value })}
-            sx={{ mb: 2 }}
-          />
-          <FormControl fullWidth sx={{ mb: 2 }}>
-            <InputLabel>Type</InputLabel>
-            <Select
-              value={newLog.interactionType}
-              label="Type"
-              onChange={(e) => setNewLog({ ...newLog, interactionType: e.target.value })}
-            >
-              <MenuItem value="CALL">Call</MenuItem>
-              <MenuItem value="EMAIL">Email</MenuItem>
-              <MenuItem value="MEETING">Meeting</MenuItem>
-              <MenuItem value="NOTE">Note</MenuItem>
-            </Select>
-          </FormControl>
-          <Button variant="contained" onClick={handleCreateLog}>Save</Button>
-          <Button onClick={() => setOpen(false)} sx={{ ml: 1 }}>Cancel</Button>
-        </Box>
-      </Modal>
+      <CreateLogModal
+        open={openCreate}
+        onClose={handleCloseCreate}
+        customerId={customerId}
+        createLog={createLog}
+      />
 
-      {/* View Log Modal */}
-      <Modal open={!!selectedLog} onClose={() => setSelectedLog(null)}>
-        <Box sx={{
-          p: 4,
-          bgcolor: 'background.paper',
-          margin: '5% auto',
-          width: { xs: '90%', sm: 500 },
-          maxHeight: '90vh',
-          overflow: 'auto',
-        }}>
-          {selectedLog && (
-            <>
-              <Typography variant="h6" gutterBottom>{selectedLog.subject}</Typography>
-              <Typography>Type: {selectedLog.interactionType}</Typography>
-              <Typography>Date: {parseDate(selectedLog.createdAt)?.toLocaleString() ?? 'N/A'}</Typography>
-              <Typography mt={2}>{selectedLog.notes}</Typography>
-            </>
-          )}
-          <Button onClick={() => setSelectedLog(null)} sx={{ mt: 2 }}>Close</Button>
-        </Box>
-      </Modal>
+      <ViewLogModal
+        log={selectedLog}
+        onClose={() => setSelectedLog(null)}
+        parseDate={parseDate}
+      />
     </Box>
   );
-}   
+}

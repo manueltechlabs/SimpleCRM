@@ -1,5 +1,5 @@
-// Detail.js
-import React, { useState } from 'react';
+// src/components/Detail.js
+import React, { useState, useMemo } from 'react';
 import {
   Box,
   Typography,
@@ -11,66 +11,46 @@ import {
   Select,
   MenuItem,
 } from '@mui/material';
-
 import { DataGrid } from '@mui/x-data-grid';
 
-export default function Detail({ logs, customerId, refreshLogs, parseDate }) {
+export default function Detail({ logs, customerId, createLog, refreshLogs, parseDate }) {
   const [selectedLog, setSelectedLog] = useState(null);
   const [open, setOpen] = useState(false);
   const [newLog, setNewLog] = useState({
-    interactionType: 'note',
+    interactionType: 'NOTE',
     subject: '',
-    notes: ''
+    notes: '',
   });
 
   const handleCreateLog = async () => {
-    await fetch(`http://127.0.0.1:8080/customers/${customerId}/logs`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newLog)
-    });
-    await refreshLogs();
+    await createLog(customerId, newLog);
     setOpen(false);
-    setNewLog({ interactionType: 'note', subject: '', notes: '' });
-    // In a real app, you would refresh the logs here
+    setNewLog({ interactionType: 'NOTE', subject: '', notes: '' });
   };
 
-  if (!logs) return null;
-
-  const columns = [
-    { 
-      field: 'interactionType', 
-      headerName: 'Type', 
-      width: 120 
-    },
-    { 
-      field: 'subject', 
-      headerName: 'Subject', 
-      flex: 1 
-    },
+  const columns = useMemo(() => [
+    { field: 'interactionType', headerName: 'Type', width: 120 },
+    { field: 'subject', headerName: 'Subject', flex: 1 },
     {
       field: 'createdAt',
       headerName: 'Date',
       width: 180,
-      valueGetter: (value, row) => {
-        if (!value) return '';
+      valueGetter: (value) => {
         const date = parseDate(value);
         return date ? date.toLocaleString() : '';
-      }
-    }
-  ];
+      },
+    },
+  ], [parseDate]);
 
   return (
     <Box sx={{ flex: 1 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Typography variant="h6">Interaction History</Typography>
-        <Button variant="contained" onClick={() => setOpen(true)}>
-          Create Log
-        </Button>
+        <Button variant="contained" onClick={() => setOpen(true)}>Create Log</Button>
       </Box>
-      
+
       <DataGrid
-        rows={logs}
+        rows={logs || []}
         columns={columns}
         onRowClick={(params) => setSelectedLog(params.row)}
         autoHeight
@@ -82,11 +62,11 @@ export default function Detail({ logs, customerId, refreshLogs, parseDate }) {
 
       {/* Create Log Modal */}
       <Modal open={open} onClose={() => setOpen(false)}>
-        <Box sx={{ 
-          p: 4, 
-          bgcolor: 'background.paper', 
-          margin: '5% auto', 
-          width: { xs: '90%', sm: 500 }
+        <Box sx={{
+          p: 4,
+          bgcolor: 'background.paper',
+          margin: '5% auto',
+          width: { xs: '90%', sm: 500 },
         }}>
           <Typography variant="h6" gutterBottom>Create Interaction</Typography>
           <TextField
@@ -125,19 +105,19 @@ export default function Detail({ logs, customerId, refreshLogs, parseDate }) {
 
       {/* View Log Modal */}
       <Modal open={!!selectedLog} onClose={() => setSelectedLog(null)}>
-        <Box sx={{ 
-          p: 4, 
-          bgcolor: 'background.paper', 
-          margin: '5% auto', 
+        <Box sx={{
+          p: 4,
+          bgcolor: 'background.paper',
+          margin: '5% auto',
           width: { xs: '90%', sm: 500 },
           maxHeight: '90vh',
-          overflow: 'auto'
+          overflow: 'auto',
         }}>
           {selectedLog && (
             <>
               <Typography variant="h6" gutterBottom>{selectedLog.subject}</Typography>
               <Typography>Type: {selectedLog.interactionType}</Typography>
-              <Typography>Date: {selectedLog && parseDate(selectedLog.createdAt)?.toLocaleString()}</Typography>
+              <Typography>Date: {parseDate(selectedLog.createdAt)?.toLocaleString() ?? 'N/A'}</Typography>
               <Typography mt={2}>{selectedLog.notes}</Typography>
             </>
           )}
@@ -146,4 +126,4 @@ export default function Detail({ logs, customerId, refreshLogs, parseDate }) {
       </Modal>
     </Box>
   );
-}
+}   

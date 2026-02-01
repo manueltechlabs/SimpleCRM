@@ -91,41 +91,74 @@ This means:
 So, no cascade delete occurs, protecting your data — exactly what you want for a CRM.
 
 
+TODO
+1. extract logic into a custom hook to handle api calls
+1. columns Array Not Memoized
+The columns definition recreates on every render, causing unnecessary re-renders of DataGrid. 
+
+✅ Fix with useMemo:
+
+const columns = React.useMemo(
+  () => [
+    { field: 'interactionType', headerName: 'Type', width: 120 },
+    { field: 'subject', headerName: 'Subject', flex: 1 },
+    {
+      field: 'createdAt',
+      headerName: 'Date',
+      width: 180,
+      valueGetter: (value) => {
+        if (!value) return '';
+        const date = parseDate(value);
+        return date ? date.toLocaleString() : '';
+      },
+    },
+  ],
+  [parseDate]
+);
 
 
+2. Modal Input State Not Validated
+No validation on "Subject" before submitting. 
 
+✅ Add simple validation:
 
+const handleCreateLog = async () => {
+  if (!newLog.subject.trim()) {
+    alert("Subject is required");
+    return;
+  }
+  await fetch(`http://127.0.0.1:8080/customers/${customerId}/logs`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(newLog),
+  });
+  await refreshLogs();
+  setOpen(false);
+  setNewLog({ interactionType: 'note', subject: '', notes: '' });
+};
 
+3. Missing Loading State During Submit
+User gets no feedback during log creation.
 
-For your React + Spring Boot master-detail CRM page, use these libraries and components:
+✅ Add loading state:
 
-Material UI (MUI): Use its Card, List, Typography, and Modal components for a polished UI. The DataGrid component is excellent for the interaction logs list.
-React Router: Handle navigation (e.g., between customers) within the single page.
-Axios: For making HTTP requests from React to your Spring Boot backend.
-This combination provides pre-built, customizable components for the master-detail layout, modals for creating logs/search, and the necessary tools for state management and API communication.
+const [loading, setLoading] = useState(false);
 
+const handleCreateLog = async () => {
+  if (!newLog.subject.trim()) return;
+  setLoading(true);
+  try {
+    await fetch(`http://127.0.0.1:8080/customers/${customerId}/logs`, { ... });
+    await refreshLogs();
+    setOpen(false);
+    setNewLog({ interactionType: 'note', subject: '', notes: '' });
+  } finally {
+    setLoading(false);
+  }
+};
 
+Update button:
 
-Master Section (Customer View)
-Purpose: Display the primary customer data.
-Components:
-A Card showing all Customer fields (name, email, phone, address, created_at).
-A search icon on fields (e.g., email, phone) that opens a search modal to find a different customer.
-Detail Section (Interaction Management)
-Purpose: Manage and view interaction logs for the selected customer.
-Components:
-A List or DataGrid displaying a summary of all InteractionLog entries.
-A "Create Log" button that opens a modal form to add a new interaction.
-Clicking on an interaction in the list opens a read-only modal displaying all its detail fields.
-The application will load the most recently interacted customer by default.
-
-If a CRM has only two tables and contact data is included within the Customer table, the second most important table would typically be the Interaction (or Activity) table. This table tracks all communications and engagements with customers, such as calls, emails, meetings, and notes, enabling the CRM to maintain a history of customer interactions and support follow-ups.
-
- in a minimal CRM with only two tables, the second table is best used as an Interaction Log (or simply Log) table. This table records each customer interaction — such as calls, emails, or meetings — with fields like timestamp, interaction type, notes, and the associated customer (linked via email or phone number).
-
-When a customer calls, you:
-
-Search the Customer table by email or phone to find their record.
-Retrieve their last interaction from the Log table.
-Add the new interaction as a new row in the Log table.
-This setup maintains a chronological history and supports effective follow-up, making the Log table the ideal second table in a two-table CRM.
+<Button variant="contained" onClick={handleCreateLog} disabled={loading}>
+  {loading ? 'Saving...' : 'Save'}
+</Button>

@@ -1,18 +1,20 @@
 // src/components/Detail.js
 import React, { useMemo, useState } from 'react';
 import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
 import { DataGrid } from '@mui/x-data-grid';
 import CreateLogModal from './CreateLogModal';
 import ViewLogModal from './ViewLogModal';
 
-export default function Detail({ logs, customerId, createLog, refreshLogs, parseDate }) {
-  const [openCreate, setOpenCreate] = useState(false);
+export default function Detail({
+  logs,
+  customerId,
+  createLog,
+  refreshLogs,
+  parseDate,
+  openCreate,
+  onCloseCreate,
+}) {
   const [selectedLog, setSelectedLog] = useState(null);
-
-  const handleOpenCreate = () => setOpenCreate(true);
-  const handleCloseCreate = () => setOpenCreate(false);
 
   const columns = useMemo(() => [
     { field: 'interactionType', headerName: 'Type', width: 120 },
@@ -30,11 +32,6 @@ export default function Detail({ logs, customerId, createLog, refreshLogs, parse
 
   return (
     <Box sx={{ flex: 1 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6">Interaction History</Typography>
-        <Button variant="contained" onClick={handleOpenCreate}>Create Log</Button>
-      </Box>
-
       <DataGrid
         rows={logs || []}
         columns={columns}
@@ -45,14 +42,12 @@ export default function Detail({ logs, customerId, createLog, refreshLogs, parse
         disableRowSelectionOnClick
         getRowId={(row) => row.id}
       />
-
       <CreateLogModal
         open={openCreate}
-        onClose={handleCloseCreate}
+        onClose={onCloseCreate}
         customerId={customerId}
         createLog={createLog}
       />
-
       <ViewLogModal
         log={selectedLog}
         onClose={() => setSelectedLog(null)}
@@ -60,4 +55,4 @@ export default function Detail({ logs, customerId, createLog, refreshLogs, parse
       />
     </Box>
   );
-}
+}   

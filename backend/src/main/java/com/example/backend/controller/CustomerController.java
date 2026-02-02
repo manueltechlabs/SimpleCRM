@@ -65,7 +65,8 @@ public class CustomerController {
         return ResponseEntity.ok(customerMapper.toDto(savedCustomer));        
     }
 
-    @PostMapping(path = "/customers/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    // not in use as i have PATCH
+    @PutMapping(path = "/customers/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CustomerDTO>
         updateCustomer(@PathVariable Long id, @RequestBody CustomerDTO dto) {
         Optional<Customer> optionalCustomer = customerService.getCustomerById(id);
@@ -89,4 +90,17 @@ public class CustomerController {
         ? ResponseEntity.ok(optionalCustomer.get().getId())
         : ResponseEntity.notFound().build();
     }
+
+    @PatchMapping("/customers/{id}")
+    public ResponseEntity<CustomerDTO> patchCustomer(@PathVariable Long id, @RequestBody CustomerDTO dto) {
+        Optional<Customer> optionalCustomer = customerService.getCustomerById(id);
+        if (optionalCustomer.isPresent()) {
+            Customer customer = optionalCustomer.get();
+            customerMapper.updateCustomerFromDto(customer, dto); // Ignores nulls
+            Customer updatedCustomer = customerService.save(customer);
+            return ResponseEntity.ok(customerMapper.toDto(updatedCustomer));
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }   
 }

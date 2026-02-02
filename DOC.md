@@ -41,7 +41,7 @@ A minimal CRM with two core tables: Customer and InteractionLog. The system enab
 | `GET` | `/customers/{id}` | Get customer + related logs |
 | `GET` | `/customers/latest` | Get latest customer interaction |
 | `POST` | `/customers` | Create customer |
-| `PUT` | `/customers/{id}` | Update customer |
+| `PATCH` | `/customers/{id}` | Update customer |
 | `DELETE` | `/customers/{id}` | Delete customer |
 
 ### InteractionLog Endpoints
@@ -89,6 +89,247 @@ This means:
 ❌ Deleting the customer will NOT automatically delete logs
 ❌ Deleting a log from the set will NOT persist unless explicitly handled
 So, no cascade delete occurs, protecting your data — exactly what you want for a CRM.
+
+## **Optional features**
+
+| Feature | Why It Helps |
+|-------|------------|
+| **Soft Deletes** (`deleted_at` timestamp) | Shows advanced data modeling; allows recovery |
+| **Authentication (JWT/OAuth2)** | Demonstrates security awareness |
+| **Filtering & Pagination** | Scales well; expected in real apps |
+| **Export to CSV/PDF** | Practical business feature |
+| **Unit/Integration Tests** | Proves code quality and reliability |
+
+## How to level this up from 7.5/10 → 9/10 🚀
+
+You don’t need a new project. Just add 1–2 of these:
+
+🔹 Backend polish
+DTOs + mapper (MapStruct or manual)
+Validation annotations (@NotNull, @Email)
+Global exception handler (@ControllerAdvice)
+Soft delete for Customer (active flag)
+
+🔹 Frontend polish
+Loading & empty states
+Server-side pagination for logs
+Optimistic UI update when adding a log
+Error toast handling (MUI Snackbar)
+
+🔹 Resume/README boost (huge impact)
+In your README, explicitly call out:
+Why you avoided cascade delete
+Why master-detail was chosen
+Tradeoffs you made
+That turns this from:
+
+“I built a CRM”
+
+into:
+
+“I designed a CRM with real-world constraints”
+
+** Top 3 Flashy Modules That Fit Your CRM PERFECTLY
+🥇 1. Task & Follow-Up Automation (Highly recommended)
+
+This one kills in interviews.
+
+Concept
+
+Every interaction can generate follow-up tasks:
+
+“Call back in 3 days”
+
+“Send proposal next week”
+
+“Waiting for customer response”
+
+New Module: Task
+
+Task Table
+```
+id
+customer_id
+interaction_id (optional)
+title
+due_date
+status (OPEN, COMPLETED, OVERDUE)
+priority
+created_at
+```
+Why this is flashy
+
+You can now show:
+
+Scheduled jobs (Spring @Scheduled)
+
+Derived state (OVERDUE)
+
+Business rules
+
+Cross-module behavior
+
+Example behaviors
+
+When an InteractionLog is created → optional task auto-created
+
+Nightly job marks tasks as OVERDUE
+
+Dashboard endpoint: “Customers needing attention”
+
+Interview gold
+
+“The CRM is interaction-driven, but value comes from follow-up discipline.”
+
+That sentence alone sounds senior 😄
+
+🥈 2. Customer Health Score & Insights (VERY flashy)
+
+This looks simple, but it’s deceptively impressive.
+
+Concept
+
+Compute a Customer Health Score based on:
+
+Number of interactions
+
+Recency of last interaction
+
+Interaction types (meeting > email)
+
+Open follow-up tasks
+
+Example
+```
+Health Score: 0–100
+Status: GREEN / YELLOW / RED
+```
+Implementation ideas
+
+Calculated dynamically (query + aggregation)
+
+OR stored and recalculated via event
+
+Read model / projection
+
+Frontend
+
+Color-coded badge
+
+Sort customers by “needs attention”
+
+Timeline visualization
+
+Why recruiters love it
+
+Shows business thinking
+
+Introduces derived data
+
+Not CRUD — it’s analysis
+
+🥉 3. Activity Timeline (Audit + Read Model)
+
+This one screams “enterprise”.
+
+Concept
+
+Unify everything into a timeline:
+
+Customer created
+
+Interaction logged
+
+Task completed
+
+Status changed
+
+Table: ActivityEvent
+```
+id
+customer_id
+type
+reference_id
+payload (JSON)
+created_at
+```
+Why it’s cool
+
+Event-like thinking without Kafka
+
+JSON payloads
+
+Decoupled read model
+
+You can even say:
+
+“This prepares the system for future event-driven architecture.”
+
+💼 Recruiter nods.
+
+If you REALLY want Accounting or Stock Control
+
+Here’s how to do it without being boring 👇
+
+❌ Boring version
+
+Invoice
+
+Line items
+
+Total
+
+Paid flag
+
+Nobody cares.
+
+✅ Flashy version: Lightweight Invoicing + CRM tie-in
+Concepts
+
+Invoices linked to customers + interactions
+
+Status machine: DRAFT → SENT → PAID → OVERDUE
+
+Auto-generated invoices after certain interactions
+
+Why it works
+
+Introduces state transitions
+
+Business workflows
+
+Time-based rules
+
+Bonus points:
+
+Scheduled job marks overdue invoices
+
+Dashboard: “Customers with unpaid invoices”
+
+What I’d personally recommend for YOU
+
+Given your project’s DNA:
+
+👉 Add ONE of these (in order):
+
+Task & Follow-Up Automation ⭐⭐⭐
+
+Customer Health Score
+
+Lightweight Invoicing (state-driven)
+
+And keep this rule:
+
+If it doesn’t introduce a new architectural concern, don’t add it.
+
+Final portfolio positioning (important)
+
+You can now say:
+
+“Started as a testing & CI/CD playground, evolved into a modular CRM showcasing domain modeling, lifecycle management, and cross-module workflows.”
+
+That sounds very hireable.
+
 
 
 TODO

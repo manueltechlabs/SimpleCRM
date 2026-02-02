@@ -52,6 +52,24 @@ export const useCustomerApi = () => {
     await fetchLogs(customerId);
   }, [fetchLogs]);
 
+  const updateCustomer = useCallback(async (id, updatedData) => {
+    try {
+      const res = await fetch(`http://127.0.0.1:8080/customers/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedData),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setCustomer(updated);
+        return updated;
+      }
+    } catch (err) {
+      console.error('Update failed:', err);
+    }
+    return null;
+  }, []);
+
   useEffect(() => {
     let isMounted = true;
     const load = async () => {
@@ -71,6 +89,7 @@ export const useCustomerApi = () => {
     error,
     refreshLogs: () => customer && fetchLogs(customer.id),
     createLog,
+    updateCustomer,
     parseDate,
   };
-};
+};   

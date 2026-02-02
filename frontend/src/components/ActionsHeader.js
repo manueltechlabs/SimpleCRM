@@ -6,27 +6,39 @@ import {
   Button,
 } from '@mui/material';
 import CreateLogModal from './CreateLogModal';
+import EditCustomerModal from './EditCustomerModal';
 
-export default function ActionsHeader({ customerId, createLog }) {
-  const [open, setOpen] = useState(false);
-
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+export default function ActionsHeader({ customerId, createLog, onCustomerUpdate }) {
+  const [openCreate, setOpenCreate] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
 
   return (
     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
       <Typography variant="h6">Interaction History</Typography>
-      <>
-        <Button variant="contained" onClick={handleOpen}>
+      <Box>
+        <Button
+          variant="outlined"
+          onClick={() => setOpenEdit(true)}
+          sx={{ mr: 1 }}
+        >
+          Update Customer
+        </Button>
+        <Button variant="contained" onClick={() => setOpenCreate(true)}>
           Create Log
         </Button>
         <CreateLogModal
-          open={open}
-          onClose={handleClose}
+          open={openCreate}
+          onClose={() => setOpenCreate(false)}
           customerId={customerId}
           createLog={createLog}
         />
-      </>
+        <EditCustomerModal
+          open={openEdit}
+          onClose={() => setOpenEdit(false)}
+          customerId={customerId}
+          onCustomerUpdate={onCustomerUpdate}
+        />
+      </Box>
     </Box>
   );
 }   

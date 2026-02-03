@@ -14,4 +14,6 @@ public interface InteractionLogService {
 
     public InteractionLog save(InteractionLog log);
 
+    public InteractionLog softDeleteInteractionLog(Long id);    
+
 }

@@ -1,20 +1,25 @@
 // src/components/Detail.js
 import React, { useMemo, useState } from 'react';
-import Box from '@mui/material/Box';
-import { DataGrid } from '@mui/x-data-grid';
-import CreateLogModal from './CreateLogModal';
+import {
+  DataGrid,
+  GridActionsCellItem,
+} from '@mui/x-data-grid';
+import Box from '@mui/material/Box';   
+import DeleteIcon from '@mui/icons-material/Delete';
 import ViewLogModal from './ViewLogModal';
+import DeleteInteractionLogModal from './DeleteInteractionLogModal';
 
-export default function Detail({
-  logs,
-  customerId,
-  createLog,
-  refreshLogs,
-  parseDate,
-  openCreate,
-  onCloseCreate,
-}) {
+export default function Detail({ logs, refreshLogs, parseDate }) {
   const [selectedLog, setSelectedLog] = useState(null);
+  const [deleteLog, setDeleteLog] = useState(null);
+
+  const handleDelete = async (id) => {
+    await fetch(`http://127.0.0.1:8080/logs/${id}`, {
+      method: 'DELETE',
+    });
+    refreshLogs();
+    setDeleteLog(null);
+  };
 
   const columns = useMemo(() => [
     { field: 'interactionType', headerName: 'Type', width: 120 },
@@ -27,6 +32,20 @@ export default function Detail({
         const date = parseDate(value);
         return date ? date.toLocaleString() : '';
       },
+    },
+    {
+      field: 'actions',
+      type: 'actions',
+      headerName: 'Actions',
+      width: 80,
+      getActions: (params) => [
+        <GridActionsCellItem
+          icon={<DeleteIcon />}
+          label="Delete"
+          onClick={() => setDeleteLog(params.row)}
+          color="error"
+        />,
+      ],
     },
   ], [parseDate]);
 
@@ -42,17 +61,17 @@ export default function Detail({
         disableRowSelectionOnClick
         getRowId={(row) => row.id}
       />
-      <CreateLogModal
-        open={openCreate}
-        onClose={onCloseCreate}
-        customerId={customerId}
-        createLog={createLog}
-      />
       <ViewLogModal
         log={selectedLog}
         onClose={() => setSelectedLog(null)}
         parseDate={parseDate}
       />
+      <DeleteInteractionLogModal
+        open={!!deleteLog}
+        onClose={() => setDeleteLog(null)}
+        log={deleteLog}
+        onConfirm={handleDelete}
+      />
     </Box>
   );
-}   
+}

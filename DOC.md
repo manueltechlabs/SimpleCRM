@@ -51,6 +51,8 @@ A minimal CRM with two core tables: Customer and InteractionLog. The system enab
 | `GET` | `/customers/{customerId}/logs` | Get all logs for a customer |
 | `POST` | `/customers/{customerId}/logs` | Add new log |
 | `GET` | `/logs/{id}` | Get specific log |
+|`DELETE`| `/logs/{id}`| Soft delete a sprcific log (marks it as deleted without permanent removal)|
+|`PUT` or `PATCH`| /logs/{id}| Update/Edit a specific interaction log |
 
 ✅ Use JPA @OneToMany mapping; return logs with customer on GET /customers/{id}.
 

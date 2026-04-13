@@ -8,18 +8,34 @@ import Box from '@mui/material/Box';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ViewLogModal from './ViewLogModal';
 import DeleteInteractionLogModal from './DeleteInteractionLogModal';
+import AnswerModal from './AnswerModal';
 
 export default function Detail({ logs, refreshLogs, parseDate }) {
   const [selectedLog, setSelectedLog] = useState(null);
   const [deleteLog, setDeleteLog] = useState(null);
+  const [answerModal, setAnswerModal] = useState({ open: false, message: '' });
 
   const handleDelete = async (id) => {
-    await fetch(`http://127.0.0.1:8080/logs/${id}`, {
+  try {
+    const res = await fetch(`http://127.0.0.1:8080/logs/${id}`, {
       method: 'DELETE',
     });
+
+    if (!res.ok) {
+      throw new Error('Delete failed');
+    }
+
+    // Show generic success message
+    setAnswerModal({ open: true, message: 'Log deleted successfully' });
     refreshLogs();
     setDeleteLog(null);
-  };
+  } catch (error) {
+    setAnswerModal({ 
+      open: true, 
+      message: 'Failed to delete log. Please try again.' 
+    });
+  }
+};   
 
   const columns = useMemo(() => [
     { field: 'interactionType', headerName: 'Type', width: 120 },
@@ -72,6 +88,14 @@ export default function Detail({ logs, refreshLogs, parseDate }) {
         log={deleteLog}
         onConfirm={handleDelete}
       />
+      <AnswerModal
+      open={answerModal.open}
+      onClose={() => {
+        setAnswerModal({ open: false, message: '' });
+        setDeleteLog(null);
+      }}
+      message={answerModal.message}
+    />
     </Box>
   );
 }
